@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PASATAF - Puso Para sa Wika</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="pasataf_logo.png">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        /* Org chart styles */
+        .org-chart-container {
+            max-width: 1100px;
+            margin: 2.5rem auto;
+            padding: 1rem;
+        }
+
+        .org-chart {
+            /* CSS variables used for node sizing and gaps so connectors can calculate correctly */
+            --node-w: 240px;
+            --gap: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 28px;
+            position: relative;
+        }
+
+        .level {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: var(--gap);
+            position: relative;
+        }
+
+        .level.single { gap: 0; }
+
+        .node {
+            min-width: var(--node-w);
+            max-width: var(--node-w);
+            padding: 18px 14px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.06);
+            text-align: center;
+            font-weight: 600;
+            color: #003366;
+            position: relative;
+            /* subtle transition so nodes feel interactive */
+            transition: transform 180ms cubic-bezier(.2,.8,.2,1), box-shadow 180ms cubic-bezier(.2,.8,.2,1);
+            will-change: transform, box-shadow;
+        }
+
+        .node small { display:block; font-weight:500; color:#666; margin-top:6px; font-size:0.9rem; }
+
+        .node-photo-wrap {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 14px;
+        }
+
+        .node-avatar {
+            position: relative;
+            width: 92px;
+            height: 92px;
+            min-width: 92px;
+            min-height: 92px;
+        }
+
+        .node-avatar::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: #f0f4fb;
+            border: 2px solid rgba(0,0,0,0.04);
+        }
+
+        .avatar-icon {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4f6a89;
+            font-size: 1.9rem;
+            pointer-events: none;
+        }
+
+        .node-photo {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            display: none;
+            position: relative;
+            z-index: 1;
+        }
+
+        .node-avatar.has-photo .avatar-icon {
+            display: none;
+        }
+
+        .node-avatar.has-photo .node-photo {
+            display: block;
+        }
+
+        .upload-trigger {
+            position: absolute;
+            right: -6px;
+            bottom: -6px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: #0056b3;
+            color: #fff;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            z-index: 2;
+        }
+
+        .upload-trigger:hover {
+            background: #004494;
+        }
+
+        .photo-input {
+            display: none;
+        }
+
+        .node-name-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .node-name-value {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #4d5a6a;
+            min-height: 1.2em;
+        }
+
+        .name-trigger {
+            font-size: 0.82rem;
+            padding: 5px 10px;
+            border-radius: 999px;
+            border: 1px solid #0056b3;
+            background: #fff;
+            color: #0056b3;
+            cursor: pointer;
+            transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+        }
+
+        .name-trigger:hover,
+        .name-trigger:focus-visible {
+            background: #0056b3;
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .name-input {
+            width: 100%;
+            max-width: 190px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(0,0,0,0.12);
+            color: #1f334f;
+            font-size: 0.95rem;
+            display: none;
+        }
+
+        .name-input:focus {
+            outline: none;
+            border-color: #0056b3;
+            box-shadow: 0 0 0 3px rgba(0,86,179,0.14);
+        }
+
+        /* vertical connector from a level to the next level (centered) */
+        .level + .level::before {
+            content: '';
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 18px;
+            /* darker gray to better anchor nodes visually */
+            background: #6b6b6b;
+            z-index: 0;
+        }
+
+        /* group horizontal connector for multi-node levels. set --count on level */
+        .level.group::after {
+            content: '';
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            height: 2px;
+            /* darker gray so the horizontal connector anchors the group */
+            background: #6b6b6b;
+            z-index: 0;
+            width: calc(var(--count) * var(--node-w) + (var(--count) - 1) * var(--gap));
+        }
+
+        /* small vertical stubs down to each node from the horizontal connector */
+        .level.group .node::before {
+            content: '';
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 18px;
+            /* match the darker connector color for cohesion */
+            background: #6b6b6b;
+            z-index: 1;
+        }
+
+        /* responsive: stack nodes on small screens */
+        @media (max-width: 768px) {
+            .org-chart { gap: 18px; }
+            .level { flex-direction: column; gap: 12px; }
+            .level.group::after, .level + .level::before, .level.group .node::before { display: none; }
+            .node { min-width: 90%; max-width: 90%; }
+        }
+
+        /* hover / active affordances for interactivity */
+        .node:hover, .node:focus-within {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+            z-index: 5; /* lift above connectors */
+            cursor: pointer;
+        }
+
+        .node:active {
+            transform: translateY(-2px);
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header>
+    <div class="header-container">
+        <!-- Left: PASATAF Logo & Name -->
+        <div class="header-left">
+            <img src="pasataf_logo.png" alt="PASATAF Logo">
+            <div class="org-title">
+                <h6 class="text-uppercase">
+                    Pampamantasang Samahan ng mga<br>Tagapagtaguyod ng Wikang Filipino
+                </h6>
+                <em>Puso Para sa Wika</em>
+            </div>
+        </div>
+
+        <!-- Center: Navigation Links -->
+        <div class="header-center">
+            <ul class="header-nav">
+                <li><a class="nav-link" href="home.html">Home</a></li>
+                <li><a class="nav-link" href="layunin.html">Layunin</a></li>
+                <li><a class="nav-link" href="karangalan.html">Karangalan</a></li>
+                <li><a class="nav-link" href="aktibidad.html">Aktibidad</a></li>
+                <li><a class="nav-link" href="library.html">E-Library</a></li>
+                <li><a class="nav-link" href="opisyal.html">Opisyales</a></li>
+            </ul>
+        </div>
+
+        <!-- Right: University Partner Logos -->
+        <div class="header-right">
+            <img src="isu_logo.png" alt="ISU Logo">
+            <img src="ced_logo.png" alt="CED Logo">
+        </div>
+    </div>
+</header>
+ 
+<!-- ===== MAIN / ORG CHART ===== -->
+<main class="container my-4">
+    <div class="org-chart-container">
+        <h2 class="section-title">Mga Opisyal <br> Taong Panuruan 2026-2027</h2>
+        <div class="org-chart" role="tree">
+            <div class="level single" role="group">
+                <div class="node" role="treeitem" data-id="president">
+                    <div class="node-photo-wrap">
+                        <div class="node-avatar">
+                            <span class="avatar-icon">+</span>
+                            <img class="node-photo" alt="Uploaded officer photo">
+                            <button type="button" class="upload-trigger" aria-label="Upload photo">+</button>
+                            <input type="file" class="photo-input" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="node-title">President</div>
+                </div>
+            </div>
+
+            <div class="level single" role="group">
+                <div class="node" role="treeitem" data-id="vice-president">
+                    <div class="node-photo-wrap">
+                        <div class="node-avatar">
+                            <span class="avatar-icon">+</span>
+                            <img class="node-photo" alt="Uploaded officer photo">
+                            <button type="button" class="upload-trigger" aria-label="Upload photo">+</button>
+                            <input type="file" class="photo-input" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="node-title">Vice President</div>
+                </div>
+            </div>
+
+            <div class="level group" style="--count:3" role="group">
+                <div class="node" role="treeitem" data-id="file-secretary">
+                    <div class="node-photo-wrap">
+                        <div class="node-avatar">
+                            <span class="avatar-icon">+</span>
+                            <img class="node-photo" alt="Uploaded officer photo">
+                            <button type="button" class="upload-trigger" aria-label="Upload photo">+</button>
+                            <input type="file" class="photo-input" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="node-title">File Secretary</div>
+                </div>
+                <div class="node" role="treeitem" data-id="board-secretary">
+                    <div class="node-photo-wrap">
+                        <div class="node-avatar">
+                            <span class="avatar-icon">+</span>
+                            <img class="node-photo" alt="Uploaded officer photo">
+                            <button type="button" class="upload-trigger" aria-label="Upload photo">+</button>
+                            <input type="file" class="photo-input" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="node-title">Board Secretary</div>
+                </div>
+                <div class="node" role="treeitem" data-id="minute-secretary">
+                    <div class="node-photo-wrap">
+                        <div class="node-avatar">
+                            <span class="avatar-icon">+</span>
+                            <img class="node-photo" alt="Uploaded officer photo">
+                            <button type="button" class="upload-trigger" aria-label="Upload photo">+</button>
+                            <input type="file" class="photo-input" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="node-title">Minute Secretary</div>
+                </div>
+            </div>
+
+            <div class="level single" role="group">
+                <div class="node" role="treeitem" data-id="treasurer">
+                    <div class="node-photo-wrap">
+                        <div class="node-avatar">
+                            <span class="avatar-icon">+</span>
+                            <img class="node-photo" alt="Uploaded officer photo">
+                            <button type="button" class="upload-trigger" aria-label="Upload photo">+</button>
+                            <input type="file" class="photo-input" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="node-title">Treasurer</div>
+                </div>
+            </div>
+
+            <div class="level single" role="group">
+                <div class="node" role="treeitem" data-id="auditor">
+                    <div class="node-photo-wrap">
+                        <div class="node-avatar">
+                            <span class="avatar-icon">+</span>
+                            <img class="node-photo" alt="Uploaded officer photo">
+                            <button type="button" class="upload-trigger" aria-label="Upload photo">+</button>
+                            <input type="file" class="photo-input" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="node-title">Auditor</div>
+                </div>
+            </div>
+
+            <div class="level group" style="--count:2" role="group">
+                <div class="node" role="treeitem" data-id="pio-1">
+                    <div class="node-photo-wrap">
+                        <div class="node-avatar">
+                            <span class="avatar-icon">+</span>
+                            <img class="node-photo" alt="Uploaded officer photo">
+                            <button type="button" class="upload-trigger" aria-label="Upload photo">+</button>
+                            <input type="file" class="photo-input" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="node-title">Public Information Officer</div>
+                </div>
+                <div class="node" role="treeitem" data-id="pio-2">
+                    <div class="node-photo-wrap">
+                        <div class="node-avatar">
+                            <span class="avatar-icon">+</span>
+                            <img class="node-photo" alt="Uploaded officer photo">
+                            <button type="button" class="upload-trigger" aria-label="Upload photo">+</button>
+                            <input type="file" class="photo-input" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="node-title">Public Information Officer</div>
+                </div>
+            </div>
+
+            <div class="level group" style="--count:2" role="group">
+                <div class="node" role="treeitem" data-id="peace-1">
+                    <div class="node-photo-wrap">
+                        <div class="node-avatar">
+                            <span class="avatar-icon">+</span>
+                            <img class="node-photo" alt="Uploaded officer photo">
+                            <button type="button" class="upload-trigger" aria-label="Upload photo">+</button>
+                            <input type="file" class="photo-input" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="node-title">Peace Officer</div>
+                </div>
+                <div class="node" role="treeitem" data-id="peace-2">
+                    <div class="node-photo-wrap">
+                        <div class="node-avatar">
+                            <span class="avatar-icon">+</span>
+                            <img class="node-photo" alt="Uploaded officer photo">
+                            <button type="button" class="upload-trigger" aria-label="Upload photo">+</button>
+                            <input type="file" class="photo-input" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="node-title">Peace Officer</div>
+                </div>
+            </div>
+
+            <div class="level group" style="--count:2" role="group">
+                <div class="node" role="treeitem" data-id="bm-1">
+                    <div class="node-photo-wrap">
+                        <div class="node-avatar">
+                            <span class="avatar-icon">+</span>
+                            <img class="node-photo" alt="Uploaded officer photo">
+                            <button type="button" class="upload-trigger" aria-label="Upload photo">+</button>
+                            <input type="file" class="photo-input" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="node-title">Business Manager</div>
+                </div>
+                <div class="node" role="treeitem" data-id="bm-2">
+                    <div class="node-photo-wrap">
+                        <div class="node-avatar">
+                            <span class="avatar-icon">+</span>
+                            <img class="node-photo" alt="Uploaded officer photo">
+                            <button type="button" class="upload-trigger" aria-label="Upload photo">+</button>
+                            <input type="file" class="photo-input" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="node-title">Business Manager</div>
+                </div>
+            </div>
+
+            <div class="level group" style="--count:4" role="group">
+                <div class="node" role="treeitem" data-id="yr1">
+                    <div class="node-photo-wrap">
+                        <div class="node-avatar">
+                            <span class="avatar-icon">+</span>
+                            <img class="node-photo" alt="Uploaded officer photo">
+                            <button type="button" class="upload-trigger" aria-label="Upload photo">+</button>
+                            <input type="file" class="photo-input" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="node-title">1st Year Rep</div>
+                </div>
+                <div class="node" role="treeitem" data-id="yr2">
+                    <div class="node-photo-wrap">
+                        <div class="node-avatar">
+                            <span class="avatar-icon">+</span>
+                            <img class="node-photo" alt="Uploaded officer photo">
+                            <button type="button" class="upload-trigger" aria-label="Upload photo">+</button>
+                            <input type="file" class="photo-input" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="node-title">2nd Year Rep</div>
+                </div>
+                <div class="node" role="treeitem" data-id="yr3">
+                    <div class="node-photo-wrap">
+                        <div class="node-avatar">
+                            <span class="avatar-icon">+</span>
+                            <img class="node-photo" alt="Uploaded officer photo">
+                            <button type="button" class="upload-trigger" aria-label="Upload photo">+</button>
+                            <input type="file" class="photo-input" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="node-title">3rd Year Rep</div>
+                </div>
+                <div class="node" role="treeitem" data-id="yr4">
+                    <div class="node-photo-wrap">
+                        <div class="node-avatar">
+                            <span class="avatar-icon">+</span>
+                            <img class="node-photo" alt="Uploaded officer photo">
+                            <button type="button" class="upload-trigger" aria-label="Upload photo">+</button>
+                            <input type="file" class="photo-input" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="node-title">4th Year Rep</div>
+                </div>
+            </div>
+
+            <div class="level group" style="--count:2" role="group">
+                <div class="node" role="treeitem" data-id="muse">
+                    <div class="node-photo-wrap">
+                        <div class="node-avatar">
+                            <span class="avatar-icon">+</span>
+                            <img class="node-photo" alt="Uploaded officer photo">
+                            <button type="button" class="upload-trigger" aria-label="Upload photo">+</button>
+                            <input type="file" class="photo-input" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="node-title">Muse</div>
+                </div>
+                <div class="node" role="treeitem" data-id="escort">
+                    <div class="node-photo-wrap">
+                        <div class="node-avatar">
+                            <span class="avatar-icon">+</span>
+                            <img class="node-photo" alt="Uploaded officer photo">
+                            <button type="button" class="upload-trigger" aria-label="Upload photo">+</button>
+                            <input type="file" class="photo-input" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="node-title">Escort</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer class="py-3 text-center">
+    <div class="container">
+        <p class="mb-1">
+            PASATAF 2025–2026 | Bachelor of Secondary Education major in Filipino |
+            Isabela State University – Echague Campus
+        </p>
+        <p class="mb-0">
+            Facebook:
+            <a href="https://www.facebook.com/PASATAF.CEd.ISUE" target="_blank">
+                Pampamantasang Samahan ng mga Tagapagtaguyod ng Wikang Filipino
+            </a>
+        </p>
+    </div>
+</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const previewState = {};
+
+        function photoStorageKey(id) {
+            return 'opisyal-photo-' + id;
+        }
+
+        function nameStorageKey(id) {
+            return 'opisyal-name-' + id;
+        }
+
+        function setNameValue(node, value) {
+            const nameValue = node.querySelector('.node-name-value');
+            if (!nameValue) return;
+            nameValue.textContent = value || 'Tap to add name';
+        }
+
+        function saveName(node, input) {
+            const id = node.dataset.id;
+            const value = input.value.trim();
+            if (value) {
+                localStorage.setItem(nameStorageKey(id), value);
+                setNameValue(node, value);
+            } else {
+                localStorage.removeItem(nameStorageKey(id));
+                setNameValue(node, 'Tap to add name');
+            }
+            input.style.display = 'none';
+        }
+
+        function createNameControls(node) {
+            const nameWrap = document.createElement('div');
+            nameWrap.className = 'node-name-wrap';
+
+            const nameValue = document.createElement('div');
+            nameValue.className = 'node-name-value';
+
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'name-trigger';
+            button.textContent = 'Add Name';
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'name-input';
+            input.placeholder = 'Enter officer name';
+
+            const storedName = localStorage.getItem(nameStorageKey(node.dataset.id));
+            if (storedName) {
+                nameValue.textContent = storedName;
+                input.value = storedName;
+            } else {
+                nameValue.textContent = 'Tap to add name';
+            }
+
+            button.addEventListener('click', function() {
+                input.style.display = 'block';
+                input.focus();
+            });
+
+            input.addEventListener('blur', function() {
+                saveName(node, input);
+            });
+
+            input.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    input.blur();
+                }
+            });
+
+            nameWrap.append(nameValue, button, input);
+            const title = node.querySelector('.node-title');
+            if (title) {
+                title.insertAdjacentElement('afterend', nameWrap);
+            } else {
+                node.appendChild(nameWrap);
+            }
+        }
+
+        function handleFileChange(node, input) {
+            const file = input.files && input.files[0];
+            if (!file) return;
+            const avatar = node.querySelector('.node-avatar');
+            const photo = node.querySelector('.node-photo');
+            const id = node.dataset.id;
+            if (previewState[id]?.url) {
+                URL.revokeObjectURL(previewState[id].url);
+            }
+            const previewUrl = URL.createObjectURL(file);
+            previewState[id] = { file, url: previewUrl };
+            localStorage.setItem(photoStorageKey(id), previewUrl);
+            photo.src = previewUrl;
+            avatar.classList.add('has-photo');
+        }
+
+        document.querySelectorAll('.node').forEach(node => {
+            createNameControls(node);
+
+            const input = node.querySelector('.photo-input');
+            const trigger = node.querySelector('.upload-trigger');
+            if (!input || !trigger) return;
+
+            trigger.addEventListener('click', function() {
+                input.click();
+            });
+
+            input.addEventListener('change', function() {
+                handleFileChange(node, input);
+            });
+
+            const savedPhoto = localStorage.getItem(photoStorageKey(node.dataset.id));
+            if (savedPhoto) {
+                const avatar = node.querySelector('.node-avatar');
+                const photo = node.querySelector('.node-photo');
+                photo.src = savedPhoto;
+                avatar.classList.add('has-photo');
+                previewState[node.dataset.id] = { url: savedPhoto };
+            }
+        });
+    });
+</script>
+</body>
+</html>

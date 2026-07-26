@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PASATAF - Puso Para sa Wika</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="pasataf_logo.png">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        /* Footer link contrast fix: white + underline, hover to light yellow */
+        footer a { color: #ffffff !important; text-decoration: underline !important; }
+        footer a:hover { color: #fff9b0 !important; text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header>
+    <div class="header-container">
+        <!-- Left: PASATAF Logo & Name -->
+        <div class="header-left">
+            <a href="https://www.facebook.com/PASATAF.CEd.ISUE" target="_blank"><img src="pasataf_logo.png" alt="PASATAF Logo"></a>
+            <div class="org-title">
+                <h6 class="text-uppercase">
+                    Pampamantasang Samahan ng mga<br>Tagapagtaguyod ng Wikang Filipino
+                </h6>
+                <em>Puso Para sa Wika</em>
+            </div>
+        </div>
+
+        <!-- Center: Navigation Links -->
+        <div class="header-center">
+            <ul class="header-nav">
+                <li><a class="nav-link active" href="home.html">Home</a></li>
+                <li><a class="nav-link" href="layunin.html">Layunin</a></li>
+                <li><a class="nav-link" href="karangalan.html">Karangalan</a></li>
+                <li><a class="nav-link" href="aktibidad.html">Aktibidad</a></li>
+                <li><a class="nav-link" href="library.html">E-Library</a></li>
+                <li><a class="nav-link" href="opisyal.html">Opisyales</a></li>
+            </ul>
+        </div>
+
+        <!-- Right: University Partner Logos -->
+        <div class="header-right">
+            <a href="https://www.facebook.com/isabelastateuniversity" target="_blank"><img src="isu_logo.png" alt="ISU Logo"></a>
+            <a href="https://www.facebook.com/profile.php?id=100057430089401" target="_blank"><img src="ced_logo.png" alt="CED Logo"></a>
+        </div>
+    </div>
+</header>
+
+<!-- ===== MAIN CONTENT ===== -->
+<main class="container my-3">
+
+    <!-- Hero: full-width tagline -->
+    <section class="home-hero" aria-label="PASATAF Hero" style="margin-bottom:1.5rem;">
+        <style>
+            .home-hero {
+                width: calc(100% + 4rem); /* stretch beyond container padding for full-bleed feel */
+                margin-left: -2rem;
+                border-radius: 14px;
+                overflow: hidden;
+            }
+
+            .home-hero .hero-inner {
+                display:flex; align-items:center; justify-content:space-between; gap:1rem;
+                padding:2.25rem 2.5rem; color: #fff; min-height:180px;
+                background: linear-gradient(135deg, rgba(239,108,0,0.95) 0%, rgba(245,124,0,0.9) 40%, rgba(2,48,71,0.85) 100%), url('../pics/hero-bg.jpg');
+                background-size: cover; background-position: center;
+            }
+
+            .hero-text { max-width: 68%; }
+            .hero-text .tagline { font-family: 'Poppins', sans-serif; font-size:2rem; font-weight:700; color:#fff; margin-bottom:0.5rem; }
+            .hero-text .lead { font-size:1.05rem; color: rgba(255,255,255,0.92); margin-bottom:0.75rem; }
+
+            .hero-cta { background:#fff; color:#ef6c00; padding:0.6rem 1rem; border-radius:10px; font-weight:700; border:none; cursor:pointer; }
+
+            @media (max-width:900px) {
+                .home-hero { width: calc(100% + 2rem); margin-left:-1rem; }
+                .home-hero .hero-inner { flex-direction:column; align-items:flex-start; padding:1.25rem; }
+                .hero-text { max-width:100%; }
+                .hero-text .tagline { font-size:1.5rem; }
+            }
+        </style>
+        <div class="hero-inner">
+            <div class="hero-text">
+                <div class="tagline">Puso Para sa Wika — Sama-samang Itaguyod ang Filipino</div>
+                <div class="lead">Sumali sa mga aktibidad, tuklasin ang mga proyekto, at ipagmalaki ang ating wika at kultura.</div>
+                <button class="hero-cta" onclick="location.href='aktibidad.html'">Sali Na!</button>
+            </div>
+            <div class="hero-media" aria-hidden="true" style="flex:1;text-align:right;">
+                <!-- optional visual: leave blank so background-photo shows; could include small decorative image here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Announcements -->
+    <style>
+        /* Slightly bolder card headers */
+        .card h6.fw-bold { font-weight: 800; letter-spacing: -0.2px; color: #002a4e; }
+        .published-date { display:inline-flex; align-items:center; gap:0.45rem; color:#555; }
+        .published-date svg { width:14px; height:14px; display:inline-block; }
+        .published-date .cal-icon { fill:#ef6c00; }
+    </style>
+
+    <div class="section-title">Mahalagang Anunsiyo</div>
+    <div class="row g-3 mb-3">
+        <div class="col-md-6">
+            <div class="card announcement-card p-4">
+                <h6 class="fw-bold">Pangkalahatang Pagpupulong</h6>
+                <p class="mb-1">
+                    Ang lahat ng mga miyembro ng PASATAF ay kinakailangang dumalo sa pangkalahatang pagpupulong.
+                </p>
+                <small class="published-date"> 
+                    <svg class="cal-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M7 10h5v5H7z"/><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H5V9h14v9z"/></svg>
+                    Inilathala noong: January 3, 2025
+                </small>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card announcement-card p-4">
+                <h6 class="fw-bold">Serbisyo sa Komunidad</h6>
+                <p class="mb-1">
+                    Para sa mga hindi nakadalo sa event.
+                </p>
+                <small class="published-date"> 
+                    <svg class="cal-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M7 10h5v5H7z"/><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H5V9h14v9z"/></svg>
+                    Inilathala noong: January 5, 2025
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trivia -->
+    <div class="section-title">Trivia</div>
+    <div class="card p-4 mb-3">
+        <p class="mb-0">
+            Alam mo ba? Ang Wikang Filipino ay patuloy na yumayabong sa pamamagitan ng
+            ambag ng iba’t ibang wika sa Pilipinas.
+        </p>
+    </div>
+
+    <!-- Upcoming Events -->
+    <div class="section-title">Mga Paparating na Kaganapan</div>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="card event-card p-4">
+                <h6 class="fw-bold">Pagdiriwang ng Buwan ng Wika</h6>
+                <p class="mb-1">
+                    Isang pangkampus na kaganapang pangkultura at pampanitikan.
+                </p>
+                <small class="text-muted">April 15, 2025</small>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card event-card p-4">
+                <h6 class="fw-bold">Workshop sa Pagsulat ng Tula</h6>
+                <p class="mb-1">
+                    Isang workshop sa mga nagnanais maning manunulat sa wikang Filipino.
+                </p>
+                <small class="text-muted">April 30, 2025</small>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer class="py-3 text-center">
+    <div class="container">
+        <p class="mb-1">
+            PASATAF 2026-2027 | Bachelor of Secondary Education major in Filipino |
+            Isabela State University – Echague Campus
+        </p>
+        <p class="mb-0">
+            Facebook:
+            <a href="https://www.facebook.com/PASATAF.CEd.ISUE" target="_blank">
+                Pampamantasang Samahan ng mga Tagapagtaguyod ng Wikang Filipino
+            </a>
+        </p>
+    </div>
+</footer>
+
+</body>
+</html>

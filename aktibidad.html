@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PASATAF | Mga Aktibidad</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="pasataf_logo.png">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <style>
+        .activities-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .activities-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .activities-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .carousel-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .carousel-btn {
+            background: rgba(239, 108, 0, 0.9);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .carousel-btn:hover {
+            background: #ef6c00;
+            transform: scale(1.05);
+        }
+
+        .carousel-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .calendar-wrapper {
+            position: relative;
+            overflow: hidden; /* container clipping so no partial cards show */
+            margin: 0 auto;
+            /* wrapper width will be set dynamically in JS to exactly fit N cards */
+            max-width: 1098px;
+            padding: 0; /* remove padding to avoid causing partial-cutoff; JS will set exact width */
+        }
+
+        .calendar-track {
+            display: flex;
+            transition: transform 0.4s ease;
+            gap: 1.5rem;
+        }
+
+        .month-card {
+            /* fixed width/height so cards stay identical */
+            width: 350px;
+            min-width: 350px;
+            max-width: 350px;
+            height: 500px; /* fixed height requested */
+            box-sizing: border-box; /* include padding in the fixed size */
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .month-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* placeholder cards used to fill slides so last slide isn't cut off */
+        .month-card.placeholder {
+            background: linear-gradient(180deg,#ffffff,#fafafa);
+            color: #999;
+            pointer-events: none;
+            opacity: 0.95;
+        }
+
+        .month-header {
+            background: linear-gradient(135deg, #ef6c00 0%, #f57c00 100%);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .month-body {
+            padding: 1.5rem;
+            flex: 1 1 auto;
+            overflow-y: auto; /* scroll if content exceeds fixed card height */
+            overflow-x: hidden;
+            box-sizing: border-box;
+            /* Firefox thin orange scrollbar */
+            scrollbar-width: thin;
+            scrollbar-color: #f47920 rgba(0, 0, 0, 0.05);
+            /* Ensure inner list area doesn't force the card to grow */
+            min-height: 0;
+        }
+
+        /* WebKit thin orange scrollbar */
+        .month-body::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .month-body::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: 10px;
+        }
+
+        .month-body::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg,#f47920,#ef6c00);
+            border-radius: 10px;
+            min-height: 20px;
+        }
+
+        .month-body::-webkit-scrollbar-thumb:hover {
+            background: #ef6c00;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-left: -0.75rem;
+            margin-right: -0.75rem;
+        }
+
+        .activity-item:hover {
+            background: rgba(244, 121, 32, 0.1);
+            transform: translateX(4px);
+        }
+
+        .activity-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .activity-date {
+            background: #f47920;
+            color: white;
+            border-radius: 8px;
+            padding: 0.5rem;
+            text-align: center;
+            min-width: 50px;
+            flex-shrink: 0;
+        }
+
+        .activity-date-day {
+            font-size: 1.5rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .activity-date-month {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            margin-top: 0.25rem;
+        }
+
+        .activity-content {
+            flex: 1;
+            min-width: 0; /* allow long text to wrap instead of expanding flex item */
+        }
+
+        .activity-actions {
+            display: flex;
+            align-items: flex-start;
+            margin-left: auto;
+        }
+
+        .activity-delete-btn {
+            border: none;
+            background: transparent;
+            color: #d32f2f;
+            font-size: 1.1rem;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0.2rem 0.4rem;
+            border-radius: 8px;
+            transition: background 180ms ease, color 180ms ease;
+        }
+
+        .activity-delete-btn:hover {
+            background: rgba(211, 47, 47, 0.12);
+            color: #b71c1c;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            color: #003366;
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+            white-space: normal; /* allow line-wrapping */
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .activity-description {
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.4;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        /* Responsive */
+        /* Responsive wrapper widths: make sure wrapper equals exact width for 3/2/1 cards so no partials appear */
+        @media (max-width: 1200px) {
+            .month-card {
+                width: 350px;
+                min-width: 350px;
+                max-width: 350px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .month-card {
+                width: 350px;
+                min-width: 350px;
+                max-width: 350px;
+            }
+
+            /* for tablets, set wrapper to exactly fit 2 cards: 2*350 + 1*24 = 724px */
+            .calendar-wrapper {
+                max-width: 724px;
+            }
+
+            .activities-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .month-card {
+                width: 100%;
+                min-width: 100%;
+                max-width: 100%;
+            }
+
+            /* mobile: wrapper fits 1 card */
+            .calendar-wrapper {
+                max-width: 350px;
+            }
+
+            .activities-title {
+                font-size: 1.5rem;
+            }
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideUp 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #ef6c00 0%, #f57c00 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 20px 20px 0 0;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+            padding-right: 2rem;
+        }
+
+        .modal-date {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .modal-section-title {
+            font-weight: 600;
+            color: #003366;
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .modal-description {
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .objectives-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .objectives-list li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.75rem;
+            color: #444;
+            line-height: 1.6;
+        }
+
+        .objectives-list li:before {
+            content: '📚';
+            position: absolute;
+            left: 0;
+            font-size: 1rem;
+        }
+
+        .modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: #f47920;
+            border-radius: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: #ef6c00;
+        }
+
+        .add-activity-btn {
+            background: #004494;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 0.85rem 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 180ms ease, background 180ms ease;
+        }
+
+        .add-activity-btn:hover {
+            background: #003575;
+            transform: translateY(-1px);
+        }
+
+        .modal-add {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(4px);
+            z-index: 1100;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal-add.show {
+            display: flex;
+        }
+
+        .modal-add-content {
+            width: 100%;
+            max-width: 640px;
+            background: #fff;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+            animation: slideUp 220ms ease;
+        }
+
+        .modal-add-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem 1.5rem 1rem;
+            background: linear-gradient(135deg, #ef6c00 0%, #f57c00 100%);
+            color: white;
+        }
+
+        .modal-add-body {
+            padding: 1.5rem;
+        }
+
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #16325c;
+        }
+
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            border: 1px solid rgba(0,0,0,0.12);
+            border-radius: 12px;
+            padding: 0.85rem 1rem;
+            font-size: 0.95rem;
+            color: #1f334f;
+            background: #f8f9fb;
+            resize: vertical;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #ef6c00;
+            box-shadow: 0 0 0 3px rgba(244,121,32,0.14);
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .form-actions .btn {
+            min-width: 110px;
+        }
+
+        .form-textarea { min-height: 110px; }
+
+        /* Featured two-column asymmetrical grid */
+        .featured-grid {
+            display: grid;
+            grid-template-columns: 65% 35%;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            align-items: stretch; /* make columns equal height */
+        }
+
+        .featured-card, .next-card {
+            background: linear-gradient(180deg,#ffffff,#fffaf6);
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+            height: 100%; /* ensure it stretches to grid row height */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* stronger visual treatment for the featured highlight */
+        .featured-card.featured-highlight {
+            background: linear-gradient(180deg,#fffaf0,#ffffff);
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 16px 40px rgba(14,30,37,0.08);
+            border: 1px solid rgba(14,30,37,0.06);
+        }
+
+        .featured-card.featured-highlight .featured-title {
+            font-size: 2rem;
+            letter-spacing: -0.4px;
+        }
+
+        .featured-card.featured-highlight .featured-date {
+            font-size: 1rem;
+            font-weight:700;
+            color:#d45f00;
+        }
+
+        .featured-card.featured-highlight .featured-desc {
+            font-size: 1.05rem;
+            color:#223;
+        }
+
+        .featured-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.6rem;
+            color: #003366;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .featured-date {
+            color: #ef6c00;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .featured-desc { color: #444; line-height: 1.6; margin-bottom: 1.25rem; }
+
+        .cta-register {
+            background: #ef6c00;
+            color: #fff;
+            border: none;
+            padding: 0.6rem 1rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            align-self: start;
+            transition: transform .12s ease, box-shadow .12s ease;
+        }
+
+        .cta-register:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(238,108,0,0.12); }
+
+        .next-card h4 { margin: 0 0 0.75rem 0; color: #003366; font-size: 1.05rem; }
+
+        .next-list { display:flex; flex-direction:column; gap:0.5rem; flex:1; }
+
+        .next-row {
+            display:flex; gap:0.75rem; align-items:center; padding:0.5rem; border-radius:8px; cursor:pointer;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+        }
+
+        .next-row:last-child { border-bottom: none; }
+
+        .mini-badge {
+            background: #f47920; color: #fff; border-radius:8px; padding:0.35rem 0.5rem; min-width:56px; text-align:center; font-weight:700;
+            display:flex; flex-direction:column; line-height:1;
+        }
+
+        .mini-badge .bd-day { font-size:1rem; }
+        .mini-badge .bd-month { font-size:0.65rem; text-transform:uppercase; }
+
+        .nr-title { color:#123; font-weight:600; }
+
+        @media (max-width: 900px) {
+            .featured-grid { grid-template-columns: 1fr; }
+            .activities-header { flex-direction: column; align-items: flex-start; gap:0.75rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header>
+    <div class="header-container">
+        <!-- Left: PASATAF Logo & Name -->
+        <div class="header-left">
+            <a href="https://www.facebook.com/PASATAF.CEd.ISUE" target="_blank"><img src="pasataf_logo.png" alt="PASATAF Logo"></a>
+            <div class="org-title">
+                <h6 class="text-uppercase">
+                    Pampamantasang Samahan ng mga<br>Tagapagtaguyod ng Wikang Filipino
+                </h6>
+                <em>Puso Para sa Wika</em>
+            </div>
+        </div>
+
+        <!-- Center: Navigation Links -->
+        <div class="header-center">
+            <ul class="header-nav">
+                <li><a class="nav-link" href="home.html">Home</a></li>
+                <li><a class="nav-link" href="layunin.html">Layunin</a></li>
+                <li><a class="nav-link" href="karangalan.html">Karangalan</a></li>
+                <li><a class="nav-link active" href="aktibidad.html">Aktibidad</a></li>
+                <li><a class="nav-link" href="library.html">E-Library</a></li>
+                <li><a class="nav-link" href="opisyal.html">Opisyales</a></li>
+            </ul>
+        </div>
+        <!-- Right: University Partner Logos -->
+        <div class="header-right">
+            <a href="https://www.facebook.com/isabelastateuniversity" target="_blank"><img src="isu_logo.png" alt="ISU Logo"></a>
+            <a href="https://www.facebook.com/profile.php?id=100057430089401" target="_blank"><img src="ced_logo.png" alt="CED Logo"></a>
+        </div>
+    </div>
+</header>
+
+<!-- ===== MAIN CONTENT ===== -->
+<main class="container my-4">
+    <div class="activities-container">
+        <!-- Header with Navigation -->
+        <div class="activities-header">
+            <h2 class="activities-title">Mga Aktibidad</h2>
+            <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+                <button class="add-activity-btn" type="button" onclick="openAddActivityModal()">+ Add Activity</button>
+                <div class="carousel-controls">
+                    <button class="carousel-btn" id="prevBtn" onclick="navigate(-1)">&#10094;</button>
+                    <button class="carousel-btn" id="nextBtn" onclick="navigate(1)">&#10095;</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Featured asymmetrical grid: left = featured event, right = next 3 -->
+        <section class="featured-grid" aria-labelledby="featuredHeading">
+            <article class="featured-card featured-highlight" id="featuredCard" role="region" aria-live="polite">
+                <div class="featured-title" id="featuredTitle">Summer Workshop</div>
+                <div class="featured-date" id="featuredDate">Fri, Jun 26, 2026, 12:00 AM</div>
+                <div class="featured-desc" id="featuredDesc">Isang placeholder na deskripsyon para sa Summer Workshop. Dito lalagay ang maikling buod ng aktibidad at mahahalagang detalye. Ang card na ito ay ang pangunahing tampok at dapat humatak ng atensyon.</div>
+                <div class="featured-meta" style="margin-top:1rem;color:#666;">Lugar: Audi 1 · Libreng pagpasok · Limitado ang upuan</div>
+            </article>
+
+            <aside class="next-card" id="nextCard">
+                <h4>Susunod na mga Aktibidad</h4>
+                <div class="next-list" id="nextList">
+                    <div class="next-row">
+                        <div class="mini-badge"><div class="bd-day">--</div><div class="bd-month">--</div></div>
+                        <div class="nr-title">Wala pang laman</div>
+                    </div>
+                    <div class="next-row">
+                        <div class="mini-badge"><div class="bd-day">--</div><div class="bd-month">--</div></div>
+                        <div class="nr-title">Wala pang laman</div>
+                    </div>
+                    <div class="next-row">
+                        <div class="mini-badge"><div class="bd-day">--</div><div class="bd-month">--</div></div>
+                        <div class="nr-title">Wala pang laman</div>
+                    </div>
+                </div>
+            </aside>
+        </section>
+
+        <div id="addActivityModal" class="modal-add" aria-hidden="true">
+            <div class="modal-add-content" role="dialog" aria-modal="true" aria-labelledby="addActivityTitle">
+                <div class="modal-add-header">
+                    <div>
+                        <h3 id="addActivityTitle" style="margin:0;font-size:1.35rem;">Magdagdag ng Aktibidad</h3>
+                        <p style="margin:0.5rem 0 0;font-size:0.95rem;opacity:0.9;">Punuan ang form upang idagdag ang bagong aktibidad sa listahan.</p>
+                    </div>
+                    <button type="button" class="modal-close" onclick="closeAddActivityModal()">×</button>
+                </div>
+                <div class="modal-add-body">
+                    <form id="addActivityForm">
+                        <div class="form-row">
+                            <label class="form-label" for="activityTitle">Pangalan ng Aktibidad</label>
+                            <input id="activityTitle" class="form-input" type="text" required>
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label" for="activityDate">Kailan Gaganapin</label>
+                            <input id="activityDate" class="form-input" type="datetime-local" required>
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label" for="activityPurpose">Layunin ng Aktibidad</label>
+                            <textarea id="activityPurpose" class="form-textarea" required></textarea>
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label" for="activityDetails">Karagdagang Detalye</label>
+                            <textarea id="activityDetails" class="form-textarea"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="closeAddActivityModal()">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Activity</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar Carousel -->
+        <div class="calendar-wrapper">
+            <div class="calendar-track" id="calendarTrack">
+                
+                <!-- January -->
+                <div class="month-card">
+                    <div class="month-header">Enero 2026</div>
+                    <div class="month-body">
+                        <div class="activity-item" onclick="openModal('Kamustahan with Ka-medyor na ISUan', 'Enero 1, 2026', 'Isang podcast na naglalayong alamin ang naging karanasan at journey ng mga estudyante sa unang semestre.', ['Magbahagi ng personal experiences', 'Magtayo ng strong community', 'Magbigay ng platform para sa bawat boses', 'Mag-inspire sa iba pang estudyante'])">
+                            <div class="activity-date">
+                                <div class="activity-date-day">1</div>
+                                <div class="activity-date-month">Ene</div>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Kamustahan with Ka-medyor na ISUan (Podcast)</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item" onclick="openModal('Basahang Ginto: Paglulunsad ng Aklatan ng Pag-asa', 'Enero 9, 2026', 'Paglulunsad ng book donation drive na nagtataguyod ng pagbabasa at pagbibigay ng aklat sa mga nangangailangan.', ['Mangolekta ng mga aklat', 'Mag-organisa ng distribution', 'Mag-promote ng literacy'])">
+                            <div class="activity-date">
+                                <div class="activity-date-day">9</div>
+                                <div class="activity-date-month">Ene</div>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Basahang Ginto: Book Donation Drive</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item" onclick="openModal('PROYEKTO TALAS', 'Enero 12, 2026', 'Isang proyekto para sa 1st year Filipino majors na naglalayong linangin ang kasanayang analitikal at pang-akademiko ng mga mag-aaral, at palakasin ang kanilang kumpiyansa at kahandaan sa pagharap sa Battery Exam.', ['Linangin ang kasanayang analitikal at pang akademiko ng mga mag aaral', 'Palakasin ang kumpiyansa at kahandaan ng mga Filipino major sa pagharap sa Battery Exam'])">
+                            <div class="activity-date">
+                                <div class="activity-date-day">12</div>
+                                <div class="activity-date-month">Ene</div>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">PROYEKTO TALAS</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item" onclick="openModal('Trash to Treasure: Bottle Collection Drive', 'Enero 18, 2026', 'Isang aktibidad bilang pagdiriwang ng Zero Waste Month na naglalayong hikayatin ang mga estudyante na maging responsable sa pangangalaga ng kalikasan at itaguyod ang prinsipyo ng Reduce, Reuse, Recycle.', ['Hikayatin ang mga estudyante na maging responsable sa pangangalaga ng kalikasan', 'Itaguyod ang prinsipyo ng Reduce, Reuse, Recycle'])">
+                            <div class="activity-date">
+                                <div class="activity-date-day">18</div>
+                                <div class="activity-date-month">Ene</div>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Trash to Treasure: Bottle Collection Drive</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item" onclick="openModal('Creative Writing Workshop', 'Enero 22, 2026', 'Isang workshop na naglalayong ipakilala at palawakin ang kaalaman ng mga kalahok tungkol sa Baybayin, ang katutubong sulat ng mga Pilipino, at turuan silang magbasa at magsulat nang tama gamit ito.', ['Matuto ng creative writing techniques', 'Magpractice ng poetry at prose'])">
+                            <div class="activity-date">
+                                <div class="activity-date-day">22</div>
+                                <div class="activity-date-month">Ene</div>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Creative Writing Workshop</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item" onclick="openModal('“Project Kaayusan: Bayanihan sa Kalinisan” – Clean-Up Drive”', 'Enero 24, 2026', 'Isang gawain kung saan nagtutulungan ang mga mag-aaral upang mapanatiling malinis at maayos ang kapaligiran, hasain ang disiplina, at itaguyod ang malasakit sa pamantasan at komunidad.', ['Matututo ang mga kalahok sa tamang pagtatapon ng basura at recycling', 'Mahuhubog ang disiplina at malasakit sa kapaligiran', 'Mapapalakas ang pakikipagtulungan at bayanihan ng mga mag-aaral', 'Maisusulong ang sustainable practices sa pamantasan at komunidad', 'Makakalikha ng malinis, ligtas, at kaaya-ayang kapaligiran para sa lahat'])">
+                            <div class="activity-date">
+                                <div class="activity-date-day">24</div>
+                                <div class="activity-date-month">Ene</div>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">“Project Kaayusan: Bayanihan sa Kalinisan” – Clean-Up Drive”</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item" onclick="openModal('Transparency in Action', 'Enero 30, 2026', 'Isang aktibidad kung saan mag-uulat ang Treasurer at Auditor tungkol sa pondo ng organisasyon sa pagtatapos ng unang semestre, upang ipakita ang malinaw at tapat na pamamahala ng pera at gawing halimbawa ang transparency sa lahat ng miyembro.', ['Iulat nang malinaw at tapat ang paggamit at pamamahala ng pondo ng organisasyon sa unang semestre', ' Palakasin ang tiwala ng mga miyembro sa pamunuan sa pamamagitan ng bukas na ulat sa pananalapi', 'Itaguyod ang prinsipyo ng transparency at accountability sa lahat ng gawain ng organisasyon'])">
+                            <div class="activity-date">
+                                <div class="activity-date-day">30</div>
+                                <div class="activity-date-month">Ene</div>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Transparency in Action</div>
+                            </div>
+                        </div>
+
+                            <div class="activity-item" onclick="openModal('State of the Organizations Address', 'Enero 24, 2026', 'Isang presentasyon na naglalayong magbigay ng malinaw at tapat na ulat tungkol sa mga nagawa, kasalukuyang proyekto, hamon, at mga plano ng organisasyon upang itaguyod ang accountability at palakasin ang pakikilahok ng mga miyembro.', ['Matututo ang mga kalahok sa tamang pagtatapon ng basura at recycling', 'Mahuhubog ang disiplina at malasakit sa kapaligiran', 'Mapapalakas ang pakikipagtulungan at bayanihan ng mga mag-aaral', 'Maisusulong ang sustainable practices sa pamantasan at komunidad', 'Makakalikha ng malinis, ligtas, at kaaya-ayang kapaligiran para sa lahat'])">
+                            <div class="activity-date">
+                                <div class="activity-date-day">24</div>
+                                <div class="activity-date-month">Ene</div>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">“State of the Organization's Address”</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item" onclick="openModal('Poetry Corner', 'Enero 12, 2026', 'Isang online na espasyo kung saan maaaring magsulat ang mga mag-aaral ng kanilang mga tula tungkol sa nararamdaman nila. Layunin nitong hasain ang kasanayan sa pagsusulat ng tula at bigyang-linaw ang pagpapahayag ng sarili sa pamamagitan ng malikhaing salita.', ['Hasain ang kasanayan ng mga mag-aaral sa pagsusulat ng tula.', 'Hikayatin ang mga mag-aaral na malayang ipahayag ang kanilang nararamdaman at saloobin', 'Palakasin ang malikhaing pag-iisip at pagpapahayag ng sarili sa pamamagitan ng panitikan', 'Magbigay ng plataporma kung saan maibabahagi ng mga mag-aaral ang kanilang mga likha sa kapwa'])">
+                            <div class="activity-date">
+                                <div class="activity-date-day">12</div>
+                                <div class="activity-date-month">Ene</div>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Poetry Corner</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                
+
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Activities data model
+    const activities = [
+        {
+            id: 'act-1',
+            title: 'Kamustahan with Ka-medyor na ISUan',
+            date: '2026-01-01T00:00:00',
+            purpose: 'Isang podcast na naglalayong alamin ang naging karanasan at journey ng mga estudyante sa unang semestre.',
+            details: 'Magbahagi ng personal experiences; Magsimula ng strong community; Magbigay ng platform para sa bawat boses; Mag-inspire sa iba pang estudyante.'
+        },
+        {
+            id: 'act-2',
+            title: 'Basahang Ginto: Book Donation Drive',
+            date: '2026-01-09T00:00:00',
+            purpose: 'Paglulunsad ng book donation drive na nagtataguyod ng pagbabasa at pagbibigay ng aklat sa mga nangangailangan.',
+            details: 'Mangolekta ng mga aklat; Mag-organisa ng distribution; Mag-promote ng literacy.'
+        },
+        {
+            id: 'act-3',
+            title: 'PROYEKTO TALAS',
+            date: '2026-01-12T00:00:00',
+            purpose: 'Isang proyekto para sa 1st year Filipino majors na naglalayong linangin ang kasanayang analitikal at pang-akademiko ng mga mag-aaral.',
+            details: 'Palakasin ang kumpiyansa at kahandaan ng mga Filipino major sa pagharap sa Battery Exam.'
+        },
+        {
+            id: 'act-4',
+            title: 'Trash to Treasure: Bottle Collection Drive',
+            date: '2026-01-18T00:00:00',
+            purpose: 'Isang aktibidad bilang pagdiriwang ng Zero Waste Month na naglalayong hikayatin ang mga estudyante na maging responsable sa pangangalaga ng kalikasan.',
+            details: 'Itaguyod ang prinsipyo ng Reduce, Reuse, Recycle.'
+        },
+        {
+            id: 'act-5',
+            title: 'Creative Writing Workshop',
+            date: '2026-01-22T00:00:00',
+            purpose: 'Isang workshop na naglalayong ipakilala at palawakin ang kaalaman ng mga kalahok tungkol sa Baybayin at malikhaing pagsulat.',
+            details: 'Turuan silang magbasa at magsulat nang tama gamit ang katutubong sulat ng mga Pilipino.'
+        },
+        {
+            id: 'act-6',
+            title: 'Project Kaayusan: Bayanihan sa Kalinisan – Clean-Up Drive',
+            date: '2026-01-24T00:00:00',
+            purpose: 'Isang gawain kung saan nagtutulungan ang mga mag-aaral upang mapanatiling malinis at maayos ang kapaligiran.',
+            details: 'Hasain ang disiplina at malasakit sa kapaligiran; Mapalakas ang pakikipagtulungan at bayanihan.'
+        },
+        {
+            id: 'act-7',
+            title: 'Transparency in Action',
+            date: '2026-01-30T00:00:00',
+            purpose: 'Isang aktibidad kung saan mag-uulat ang Treasurer at Auditor tungkol sa pondo ng organisasyon.',
+            details: 'Itaguyod ang transparency at accountability sa lahat ng gawain ng organisasyon.'
+        },
+        {
+            id: 'act-8',
+            title: 'State of the Organization\'s Address',
+            date: '2026-01-24T00:00:00',
+            purpose: 'Isang presentasyon na naglalayong magbigay ng malinaw at tapat na ulat tungkol sa mga nagawa at plano ng organisasyon.',
+            details: 'Palakasin ang pakikilahok ng mga miyembro at isulong ang accountability.'
+        },
+        {
+            id: 'act-9',
+            title: 'Poetry Corner',
+            date: '2026-01-12T00:00:00',
+            purpose: 'Isang online na espasyo kung saan maaaring magsulat ang mga mag-aaral ng kanilang mga tula tungkol sa nararamdaman nila.',
+            details: 'Hasain ang kasanayan sa pagsusulat ng tula at palakasin ang malikhaing pagpapahayag ng sarili.'
+        }
+    ];
+
+    const activityStorageKey = 'pasataf_activities';
+
+    function loadActivitiesFromStorage() {
+        try {
+            const stored = localStorage.getItem(activityStorageKey);
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                if (Array.isArray(parsed)) {
+                    window.activities = parsed;
+                    return;
+                }
+            }
+        } catch (err) {
+            console.warn('Failed to load activities from storage', err);
+        }
+        window.activities = activities;
+    }
+
+    function saveActivitiesToStorage() {
+        try {
+            localStorage.setItem(activityStorageKey, JSON.stringify(window.activities || []));
+        } catch (err) {
+            console.warn('Failed to save activities to storage', err);
+        }
+    }
+
+    loadActivitiesFromStorage();
+
+    const filipinoMonths = ['Enero','Pebrero','Marso','Abril','Mayo','Hunyo','Hulyo','Ago','Agosto','Setyembre','Oktubre','Nobyembre','Disyembre'];
+
+    function formatMonthHeader(date) {
+        return `${filipinoMonths[date.getMonth()]} ${date.getFullYear()}`;
+    }
+
+    function formatMonthAbbrev(date) {
+        return filipinoMonths[date.getMonth()].slice(0,3);
+    }
+
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function renderActivityItem(activity) {
+        const date = new Date(activity.date);
+        const day = isNaN(date) ? '--' : date.getDate();
+        const month = isNaN(date) ? '--' : formatMonthAbbrev(date);
+        const item = document.createElement('div');
+        item.className = 'activity-item';
+        item.innerHTML = `
+            <div class="activity-date">
+                <div class="activity-date-day">${day}</div>
+                <div class="activity-date-month">${month}</div>
+            </div>
+            <div class="activity-content">
+                <div class="activity-title">${escapeHtml(activity.title)}</div>
+            </div>
+            <div class="activity-actions">
+                <button type="button" class="activity-delete-btn" aria-label="Delete activity">×</button>
+            </div>
+        `;
+        item.querySelector('.activity-delete-btn').addEventListener('click', (event) => {
+            event.stopPropagation();
+            deleteActivityById(activity.id);
+        });
+        item.addEventListener('click', () => {
+            const description = activity.details || activity.purpose || '';
+            const objectives = activity.details ? [activity.purpose || ''] : [activity.purpose || ''];
+            openModal(
+                activity.title,
+                date.toLocaleString(undefined, { weekday:'short', year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }),
+                description,
+                objectives
+            );
+        });
+        return item;
+    }
+
+    function renderCalendarFromActivities() {
+        const track = document.getElementById('calendarTrack');
+        if (!track) return;
+
+        const sorted = [...window.activities]
+            .filter(a => a && a.date)
+            .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        const groups = sorted.reduce((acc, activity) => {
+            const date = new Date(activity.date);
+            if (isNaN(date)) return acc;
+            const key = `${date.getFullYear()}-${date.getMonth()}`;
+            if (!acc[key]) {
+                acc[key] = {
+                    header: formatMonthHeader(date),
+                    activities: []
+                };
+            }
+            acc[key].activities.push(activity);
+            return acc;
+        }, {});
+
+        const orderedGroups = Object.keys(groups)
+            .sort((a, b) => {
+                const [ay, am] = a.split('-').map(Number);
+                const [by, bm] = b.split('-').map(Number);
+                return by - ay || bm - am;
+            })
+            .map(key => groups[key]);
+
+        track.innerHTML = '';
+        orderedGroups.forEach(group => {
+            const card = document.createElement('div');
+            card.className = 'month-card';
+            card.innerHTML = `<div class="month-header">${escapeHtml(group.header)}</div>`;
+            const body = document.createElement('div');
+            body.className = 'month-body';
+
+            group.activities.forEach(activity => {
+                body.appendChild(renderActivityItem(activity));
+            });
+
+            if (!group.activities.length) {
+                const empty = document.createElement('div');
+                empty.className = 'activity-item';
+                empty.textContent = 'Walang mga aktibidad sa buwang ito.';
+                body.appendChild(empty);
+            }
+
+            card.appendChild(body);
+            track.appendChild(card);
+        });
+
+        if (!track.children.length) {
+            const placeholder = document.createElement('div');
+            placeholder.className = 'month-card placeholder';
+            placeholder.innerHTML = '<div class="month-header"></div>' +
+                '<div class="month-body"><div class="activity-item" style="cursor:default;padding:0.75rem;opacity:0.6">' +
+                '<div class="activity-date"><div class="activity-date-day">-</div><div class="activity-date-month"></div></div>' +
+                '<div class="activity-content"><div class="activity-title">Walang aktibidad</div><div class="activity-description">Idagdag ang unang aktibidad gamit ang button sa itaas.</div></div>' +
+                '</div></div>';
+            track.appendChild(placeholder);
+        }
+    }
+
+    function updateHeroAndNextCards() {
+        const sorted = [...window.activities]
+            .filter(a => a && a.date)
+            .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        const hero = sorted[0];
+        const next = sorted.slice(1, 3);
+        const featuredTitleEl = document.getElementById('featuredTitle');
+        const featuredDateEl = document.getElementById('featuredDate');
+        const featuredDescEl = document.getElementById('featuredDesc');
+        const featuredMetaEl = document.querySelector('.featured-meta');
+        const nextListEl = document.getElementById('nextList');
+
+        if (!hero) {
+            featuredTitleEl.textContent = 'Wala pang paparating na aktibidad';
+            featuredDateEl.textContent = '--';
+            featuredDescEl.textContent = 'Walang nakalistang aktibidad para sa ngayon.';
+            if (featuredMetaEl) featuredMetaEl.textContent = '';
+            nextListEl.innerHTML = '<div class="next-row"><div class="mini-badge"><div class="bd-day">--</div><div class="bd-month">--</div></div><div class="nr-title">Wala pang aktibidad</div></div>';
+            return;
+        }
+
+        const heroDate = new Date(hero.date);
+        featuredTitleEl.textContent = hero.title;
+        featuredDateEl.textContent = isNaN(heroDate) ? hero.date : heroDate.toLocaleString(undefined, { weekday:'short', year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+        featuredDescEl.textContent = hero.purpose ? `${hero.purpose}${hero.details ? ' ' + hero.details : ''}` : (hero.details || 'Walang karagdagang detalye.');
+        if (featuredMetaEl) featuredMetaEl.textContent = `Latest activity · ${heroDate.toLocaleString(undefined, { month:'long', year:'numeric' })}`;
+
+        nextListEl.innerHTML = '';
+        if (next.length === 0) {
+            nextListEl.innerHTML = '<div class="next-row"><div class="mini-badge"><div class="bd-day">--</div><div class="bd-month">--</div></div><div class="nr-title">Wala pang susunod na aktibidad</div></div>';
+            return;
+        }
+
+        next.forEach(activity => {
+            const date = new Date(activity.date);
+            const row = document.createElement('div');
+            row.className = 'next-row';
+            row.addEventListener('click', () => {
+                openModal(
+                    activity.title,
+                    date.toLocaleString(undefined, { weekday:'short', year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }),
+                    activity.details || activity.purpose || '',
+                    activity.purpose ? [activity.purpose] : []
+                );
+            });
+
+            const badge = document.createElement('div'); badge.className = 'mini-badge';
+            const bdDay = document.createElement('div'); bdDay.className = 'bd-day'; bdDay.textContent = isNaN(date) ? '--' : date.getDate();
+            const bdMonth = document.createElement('div'); bdMonth.className = 'bd-month'; bdMonth.textContent = isNaN(date) ? '--' : formatMonthAbbrev(date);
+            badge.appendChild(bdDay);
+            badge.appendChild(bdMonth);
+
+            const title = document.createElement('div'); title.className = 'nr-title';
+            title.textContent = activity.title;
+
+            row.appendChild(badge);
+            row.appendChild(title);
+            nextListEl.appendChild(row);
+        });
+    }
+
+    function updateUpcoming() {
+        sortActivitiesByDateAsc();
+        updateHeroAndNextCards();
+    }
+
+    function openAddActivityModal() {
+        const modal = document.getElementById('addActivityModal');
+        modal.classList.add('show');
+        modal.setAttribute('aria-hidden', 'false');
+        document.getElementById('activityTitle').focus();
+    }
+
+    function closeAddActivityModal() {
+        const modal = document.getElementById('addActivityModal');
+        modal.classList.remove('show');
+        modal.setAttribute('aria-hidden', 'true');
+        document.getElementById('addActivityForm').reset();
+    }
+
+    function sortActivitiesByDateAsc() {
+        if (!window.activities) return;
+        window.activities.sort((a, b) => new Date(a.date) - new Date(b.date));
+    }
+
+    function deleteActivityById(activityId) {
+        if (!window.activities) return;
+        window.activities = window.activities.filter(a => a.id !== activityId);
+        saveActivitiesToStorage();
+        sortActivitiesByDateAsc();
+        renderCalendarFromActivities();
+        if (typeof window.refreshCalendarCarousel === 'function') window.refreshCalendarCarousel();
+        if (typeof window.updateUpcoming === 'function') window.updateUpcoming();
+    }
+
+    function addActivityToState(activity) {
+        if (!window.activities) window.activities = [];
+        window.activities.push(activity);
+        saveActivitiesToStorage();
+        sortActivitiesByDateAsc();
+        renderCalendarFromActivities();
+        if (typeof window.refreshCalendarCarousel === 'function') window.refreshCalendarCarousel();
+        if (typeof window.updateUpcoming === 'function') window.updateUpcoming();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        sortActivitiesByDateAsc();
+        renderCalendarFromActivities();
+        updateHeroAndNextCards();
+        setInterval(updateUpcoming, 60 * 1000);
+
+        const form = document.getElementById('addActivityForm');
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const title = document.getElementById('activityTitle').value.trim();
+            const dateValue = document.getElementById('activityDate').value;
+            const purpose = document.getElementById('activityPurpose').value.trim();
+            const details = document.getElementById('activityDetails').value.trim();
+
+            if (!title || !dateValue || !purpose) {
+                alert('Pakiusap, punuan ang Pangalan ng Aktibidad, Kailan Gaganapin, at Layunin ng Aktibidad.');
+                return;
+            }
+
+            const newActivity = {
+                id: 'act-' + Date.now(),
+                title,
+                date: new Date(dateValue).toISOString(),
+                purpose,
+                details
+            };
+            addActivityToState(newActivity);
+            closeAddActivityModal();
+        });
+        const track = document.getElementById('calendarTrack');
+        let cards = Array.from(track.querySelectorAll('.month-card'));
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        let currentPosition = 0;
+
+        // Deterministic cards per view using breakpoints so we always show full cards (3/2/1)
+        function getCardsPerView() {
+            const w = window.innerWidth;
+            if (w <= 480) return 1; // mobile
+            if (w <= 768) return 2; // tablet
+            return 3; // desktop
+        }
+
+        // Append placeholder cards so total number of cards is a multiple of cardsPerView
+        function ensurePlaceholders() {
+            // remove existing placeholders first
+            track.querySelectorAll('.month-card.placeholder').forEach(n => n.remove());
+            cards = Array.from(track.querySelectorAll('.month-card'));
+            const cpv = getCardsPerView();
+            const remainder = cards.length % cpv;
+            if (remainder !== 0) {
+                const needed = cpv - remainder;
+                for (let i = 0; i < needed; i++) {
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'month-card placeholder';
+                    placeholder.innerHTML = '<div class="month-header"></div>' +
+                        '<div class="month-body"><div class="activity-item" style="cursor:default;padding:0.75rem;opacity:0.6">' +
+                        '<div class="activity-date"><div class="activity-date-day">-</div><div class="activity-date-month"></div></div>' +
+                        '<div class="activity-content"><div class="activity-title">Coming Soon</div><div class="activity-description">&nbsp;</div></div>' +
+                        '</div></div>';
+                    track.appendChild(placeholder);
+                }
+                cards = Array.from(track.querySelectorAll('.month-card'));
+            }
+        }
+
+        // Compute gap between cards robustly (supports browsers that expose gap or not)
+        function computeGap(cardEl) {
+            const style = getComputedStyle(track);
+            if (style.gap) {
+                const g = parseFloat(style.gap);
+                if (!isNaN(g)) return g;
+            }
+            // fallback: use offsetLeft difference between card 0 and 1
+            if (cards.length > 1) {
+                const gap = cards[1].offsetLeft - cards[0].offsetLeft - cardEl.offsetWidth;
+                return gap >= 0 ? gap : 0;
+            }
+            return 0;
+        }
+
+        // Set wrapper exact width so it fits exactly cpv cards (no partials)
+        function setWrapperExactWidth(cpv) {
+            const wrapper = document.querySelector('.calendar-wrapper');
+            if (!cards.length) return;
+            const cardWidth = cards[0].offsetWidth;
+            const gap = computeGap(cards[0]);
+            const total = cpv * cardWidth + Math.max(0, cpv - 1) * gap;
+            wrapper.style.maxWidth = total + 'px';
+        }
+
+        function updateButtons() {
+            const cpv = getCardsPerView();
+            const maxPosition = Math.max(0, cards.length - cpv);
+            prevBtn.disabled = currentPosition <= 0;
+            nextBtn.disabled = currentPosition >= maxPosition;
+        }
+
+        function goToPosition(pos) {
+            const cardWidth = 350; // fixed
+            const gap = 24; // matches CSS gap: 1.5rem ~ 24px
+            const offset = -(pos * (cardWidth + gap));
+            track.style.transform = `translateX(${offset}px)`;
+        }
+
+        // Expose navigate globally so existing HTML onclick attributes still work
+        window.navigate = function(direction) {
+            const cpv = getCardsPerView();
+            const maxPosition = Math.max(0, cards.length - cpv);
+            currentPosition += direction * cpv; // move by slide (cpv)
+            currentPosition = Math.max(0, Math.min(currentPosition, maxPosition));
+            goToPosition(currentPosition);
+            updateButtons();
+        };
+
+        window.refreshCalendarCarousel = function() {
+            cards = Array.from(track.querySelectorAll('.month-card'));
+            ensurePlaceholders();
+            setWrapperExactWidth(getCardsPerView());
+            currentPosition = 0;
+            goToPosition(0);
+            updateButtons();
+        };
+
+    // Initialize
+    ensurePlaceholders();
+    // set wrapper width to exactly fit current cpv
+    setWrapperExactWidth(getCardsPerView());
+    updateButtons();
+    goToPosition(0);
+
+        // Handle resize: rebuild placeholders and reset position to avoid partials
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                // remove & re-add placeholders to match new cpv, and recompute wrapper width
+                track.querySelectorAll('.month-card.placeholder').forEach(n => n.remove());
+                cards = Array.from(track.querySelectorAll('.month-card'));
+                ensurePlaceholders();
+                cards = Array.from(track.querySelectorAll('.month-card'));
+                // reset wrapper width for the new breakpoint
+                setWrapperExactWidth(getCardsPerView());
+                currentPosition = 0;
+                goToPosition(0);
+                updateButtons();
+            }, 120);
+        });
+    });
+    </script>
+
+<!-- Modal -->
+<div id="activityModal" class="modal" onclick="closeModalOnOutside(event)">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h3 class="modal-title" id="modalTitle"></h3>
+            <div class="modal-date" id="modalDate"></div>
+        </div>
+        <div class="modal-body">
+            <div class="modal-section">
+                <h4 class="modal-section-title">Deskripsyon</h4>
+                <p class="modal-description" id="modalDescription"></p>
+            </div>
+            <div class="modal-section">
+                <h4 class="modal-section-title">Mga Layunin</h4>
+                <ul class="objectives-list" id="modalObjectives"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openModal(title, date, description, objectives) {
+        const modal = document.getElementById('activityModal');
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalDate').textContent = date;
+        document.getElementById('modalDescription').textContent = description;
+        
+        const objectivesList = document.getElementById('modalObjectives');
+        objectivesList.innerHTML = '';
+        objectives.forEach(objective => {
+            const li = document.createElement('li');
+            li.textContent = objective;
+            objectivesList.appendChild(li);
+        });
+        
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('activityModal');
+        modal.classList.remove('show');
+        document.body.style.overflow = 'auto';
+    }
+
+    function closeModalOnOutside(event) {
+        if (event.target.id === 'activityModal') {
+            closeModal();
+        }
+    }
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeModal();
+        }
+    });
+</script>
+
+<!-- ===== FOOTER ===== -->
+<footer class="py-3 text-center">
+    <div class="container">
+        <p class="mb-1">
+            PASATAF 2026–2027 | Bachelor of Secondary Education major in Filipino |
+            Isabela State University – Echague Campus
+        </p>
+        <p class="mb-0">
+            Facebook:
+            <a href="https://www.facebook.com/PASATAF.CEd.ISUE" target="_blank">
+                Pampamantasang Samahan ng mga Tagapagtaguyod ng Wikang Filipino
+            </a>
+        </p>
+    </div>
+</footer>
+
+</body>
+</html>

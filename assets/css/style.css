@@ -1,0 +1,376 @@
+:root {
+    --navy: #003366;
+    --orange: #EF6C00;
+    --yellow: #F9A825;
+    --light: #F8F9FA;
+    --dark: #2B2B2B;
+}
+
+body {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(135deg, #e3f2fd 0%, #fce4ec 100%);
+    color: var(--dark);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    max-width: 1200px;
+}
+
+main {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===== HEADER ===== */
+header {
+    background: linear-gradient(135deg, #ef6c00 0%, #f57c00 100%);
+    color: #f5f5f5;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem 0;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.header-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+header img {
+    height: 65px;
+    width: auto;
+    object-fit: contain;
+    transition: transform 0.3s ease, filter 0.3s ease;
+    cursor: pointer;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+header img:hover {
+    transform: scale(1.15);
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.org-title h6 {
+    margin-bottom: 3px;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.org-title em {
+    font-size: 0.75rem;
+}
+
+/* ===== NAVIGATION ===== */
+.header-nav {
+    display: flex;
+    gap: 0.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.header-nav .nav-link {
+    color: #ffffff;
+    font-weight: 600;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.95rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.header-nav .nav-link:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.header-nav .nav-link.active {
+    background: rgba(255, 255, 255, 0.25);
+    font-weight: 700;
+}
+
+/* ===== SECTIONS ===== */
+.section-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-title::before {
+    content: '';
+    width: 6px;
+    height: 24px;
+    background: linear-gradient(135deg, #ef6c00 0%, #f57c00 100%);
+    border-radius: 3px;
+}
+
+/* ===== CARDS ===== */
+.card {
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    background: rgba(255, 255, 255, 0.85);
+}
+
+/* ===== FOOTER ===== */
+footer {
+    background: linear-gradient(135deg, #ef6c00 0%, #f57c00 100%);
+    font-size: 0.8rem;
+    color: #f5f5f5;
+    flex-shrink: 0;
+    margin-top: auto;
+}
+
+/* ================================
+   ACHIEVEMENTS – 1ST SEMESTER
+   ================================ */
+
+.achievements-page {
+    padding: 2.5rem 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* PAGE TITLE */
+.achievements-title {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.achievements-title h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--navy);
+}
+
+.achievements-title p {
+    font-size: 0.95rem;
+    color: #555;
+    margin-top: 0.25rem;
+}
+
+/* FEATURED ACHIEVEMENT */
+.featured-achievement {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+}
+
+.featured-card {
+    max-width: 760px;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+    transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.featured-card:hover {
+    transform: scale(1.015);
+    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.18);
+}
+
+.featured-card img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.featured-info {
+    padding: 1.5rem 1.75rem;
+}
+
+.featured-info h3 {
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 0.25rem;
+}
+
+.featured-info .date {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #777;
+}
+
+.featured-info p {
+    margin-top: 0.75rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+/* PREV / NEXT BUTTONS */
+.achievement-nav {
+    background: transparent;
+    border: 2px solid var(--orange);
+    color: var(--orange);
+    border-radius: 10px;
+    padding: 0.45rem 0.8rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.achievement-nav:hover {
+    background: var(--orange);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+/* GALLERY */
+.achievement-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+}
+
+.achievement-thumb {
+    overflow: hidden;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.achievement-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.achievement-thumb:hover {
+    transform: scale(1.08);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.2);
+}
+
+/* DETAILS SECTION */
+.achievement-details {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 1.75rem 2rem;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+}
+
+.achievement-details h4 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 0.75rem;
+}
+
+.achievement-details p {
+    font-size: 0.95rem;
+    line-height: 1.65;
+    color: #333;
+}
+
+/* ================================
+   RESPONSIVE
+   ================================ */
+@media (max-width: 768px) {
+    .featured-achievement {
+        flex-direction: column;
+    }
+
+    .achievement-nav {
+        width: 100%;
+        text-align: center;
+    }
+
+    .featured-info h3 {
+        font-size: 1.25rem;
+    }
+}
+
+/* ===== Profile Card Layout (for `opisyal` or similar pages) ===== */
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    align-items: start;
+}
+
+.profile-card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    border: 1px solid rgba(0,0,0,0.04);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.profile-card .profile-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    margin-bottom: 12px;
+}
+
+.profile-card .profile-name {
+    font-weight: 700;
+    color: #003366;
+    margin: 6px 0 4px;
+    font-size: 1rem;
+}
+
+.profile-card .profile-subtitle {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 0;
+}
+
+/* small utility: ensure images inside nodes used by org-chart follow same sizing */
+.org-chart .node .profile-img,
+.node-photo { /* existing node-photo will match */
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
