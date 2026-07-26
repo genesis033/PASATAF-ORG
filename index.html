@@ -21,6 +21,21 @@
         footer a { color: #ffffff !important; text-decoration: underline !important; }
         footer a:hover { color: #fff9b0 !important; text-decoration: underline; }
     </style>
+    <!-- Development modal styles -->
+    <style>
+        .dev-modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.55); display:flex; align-items:center; justify-content:center; z-index:9999;
+        }
+        .dev-modal {
+            background:#fff; color:#002a4e; width:min(680px,92%); border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,0.25); padding:1.25rem 1.5rem; font-family: 'Poppins', sans-serif;
+        }
+        .dev-modal h3 { margin:0 0 0.375rem 0; font-size:1.25rem; }
+        .dev-modal p { margin:0 0 1rem 0; color:#33475b; line-height:1.4; }
+        .dev-modal .dev-actions { display:flex; gap:0.5rem; justify-content:flex-end; }
+        .dev-modal .btn-secondary { background:#e9eef2; color:#002a4e; border:none; padding:0.45rem 0.9rem; border-radius:8px; cursor:pointer; }
+        .dev-modal .btn-primary { background:#ef6c00; color:#fff; border:none; padding:0.45rem 0.9rem; border-radius:8px; cursor:pointer; }
+        @media (max-width:420px) { .dev-modal { padding:1rem; } .dev-modal h3 { font-size:1.05rem; } }
+    </style>
 </head>
 <body>
 
@@ -191,6 +206,54 @@
         </p>
     </div>
 </footer>
+
+<!-- Development / Feedback modal (shows on page load) -->
+<div id="devModalOverlay" class="dev-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="devModalTitle" style="display:none;">
+    <div class="dev-modal" role="document">
+        <h3 id="devModalTitle">Paunawa: Site Under Development</h3><br>
+        <p>
+            Salamat sa pagbisita! Ang website na ito ay kasalukuyang nasa development pa at hindi pa ang pangwakas na bersyon.
+            Kung mayroon kayong puna o mungkahi, maaari ninyo itong ipadala sa email na <strong>genesisdelapena964@gmail.com</strong>. Maraming salamat!
+        </p>
+        <div class="dev-actions">
+            <button id="devDismissBtn" class="btn-secondary">Tingnan</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function(){
+        function showDevModal(){
+            var overlay = document.getElementById('devModalOverlay');
+            if(!overlay) return;
+            overlay.style.display = 'flex';
+            // trap focus briefly for accessibility
+            var dismiss = document.getElementById('devDismissBtn');
+            if(dismiss) dismiss.focus();
+        }
+
+        function hideDevModal(){
+            var overlay = document.getElementById('devModalOverlay');
+            if(!overlay) return;
+            overlay.style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', function(){
+            // show modal on first load
+            showDevModal();
+
+            var dismiss = document.getElementById('devDismissBtn');
+            var overlay = document.getElementById('devModalOverlay');
+            if(dismiss) dismiss.addEventListener('click', hideDevModal);
+
+            // allow clicking outside modal to close
+            if(overlay) overlay.addEventListener('click', function(e){ if(e.target === overlay) hideDevModal(); });
+
+            // close on Esc
+            document.addEventListener('keydown', function(e){ if(e.key === 'Escape') hideDevModal(); });
+        });
+    })();
+</script>
 
 </body>
 </html>
